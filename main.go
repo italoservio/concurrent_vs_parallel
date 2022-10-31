@@ -18,7 +18,11 @@ const (
 
 func main() {
 	start_time := time.Now()
-	algorithm := flag.String("algorithm", "concurrent", "[concurrent, parallel]")
+	algorithm := flag.String(
+		"algorithm",
+		"concurrent",
+		"[concurrent, parallel, sequential]",
+	)
 	flag.Parse()
 
 	pwd, err := os.Getwd()
@@ -34,11 +38,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	var script func(dir string, dir_entries []fs.DirEntry) (float32, error)
-	if *algorithm == CONCURRENT {
+	var script func(
+		dir string,
+		dir_entries []fs.DirEntry,
+	) (float32, error)
+
+	switch *algorithm {
+	case CONCURRENT:
 		script = scripts.ConcurrentExecution
-	} else {
+	case PARALLEL:
 		script = scripts.ParallelExecution
+	default:
+		script = scripts.SequentialExecution
 	}
 
 	amount, err := script(dir, dir_entries)
